@@ -1,11 +1,21 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import shutil
 import cv2
-import numpy as np
-from paddleocr import PaddleOCR
 
 app = FastAPI()
+
+_allowed_origins = [
+    o.strip() for o in os.getenv("ALLOWED_ORIGINS", "*").split(",") if o.strip()
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_allowed_origins,
+    allow_credentials="*" not in _allowed_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Folder where uploaded images will be stored
 

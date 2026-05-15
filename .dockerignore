@@ -1,0 +1,9 @@
+.git
+uploads
+processed
+__pycache__
+*.pyc
+.venv
+venv
+.env
+Bill.png
