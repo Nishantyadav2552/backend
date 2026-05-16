@@ -1,9 +1,15 @@
 import google.generativeai as genai
 import json
+import os
+from pathlib import Path
 
-genai.configure(
-    api_key="AIzaSyDhTxDXHjTryG78frt309J223lX2GIBhWY"
-)
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
+
+_API_KEY = os.getenv("GEMINI_API_KEY")
+if _API_KEY:
+    genai.configure(api_key=_API_KEY)
 
 model = genai.GenerativeModel(
     "gemini-3-flash-preview"
@@ -34,6 +40,14 @@ OCR TEXT:
 {raw_text}
 """
 
+    if not _API_KEY:
+        return {
+            "error": (
+                "GEMINI_API_KEY is not set. Add it to app/services/.env "
+                "or set the environment variable, then restart the server."
+            )
+        }
+
     try:
 
         response = model.generate_content(
@@ -53,7 +67,14 @@ OCR TEXT:
         return json.loads(response_text)
 
     except Exception as e:
+        message = str(e)
+        if "API_KEY_INVALID" in message or "API Key not found" in message:
+            message = (
+                "Invalid GEMINI_API_KEY. Create a new key at "
+                "https://aistudio.google.com/apikey and update "
+                "app/services/.env, then restart the server."
+            )
 
         return {
-            "error": str(e)
+            "error": message
         }
