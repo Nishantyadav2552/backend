@@ -16,37 +16,40 @@ model = genai.GenerativeModel(
 )
 
 
-def extract_bill_with_gemini(ocr_data):
-
-    raw_text = "\n".join(
-        [item["text"] for item in ocr_data]
-    )
+def extract_bill_with_gemini(ocr_text):
 
     prompt = f"""
-Extract receipt details into JSON.
+    You are an AI receipt extraction system.
 
-Return ONLY valid JSON.
+    Extract receipt information from OCR text.
 
-Format:
-{{
-  "vendor": "",
-  "total": "",
-  "cash": "",
-  "change": "",
-  "approval_code": ""
-}}
+    Return ONLY valid JSON.
 
-OCR TEXT:
-{raw_text}
-"""
+    Extract ONLY these fields:
 
-    if not _API_KEY:
-        return {
-            "error": (
-                "GEMINI_API_KEY is not set. Add it to app/services/.env "
-                "or set the environment variable, then restart the server."
-            )
-        }
+    1. vendor
+    2. total
+    3. date
+    4. time
+
+    Rules:
+    - Do not explain anything
+    - Return valid JSON only
+    - If a field is missing use empty string
+    - total must contain decimal value if present
+
+    JSON FORMAT:
+
+    {{
+    "vendor": "",
+    "total": "",
+    "date": "",
+    "time": ""
+    }}
+
+    OCR TEXT:
+    {ocr_text}
+    """
 
     try:
 
@@ -67,14 +70,8 @@ OCR TEXT:
         return json.loads(response_text)
 
     except Exception as e:
-        message = str(e)
-        if "API_KEY_INVALID" in message or "API Key not found" in message:
-            message = (
-                "Invalid GEMINI_API_KEY. Create a new key at "
-                "https://aistudio.google.com/apikey and update "
-                "app/services/.env, then restart the server."
-            )
 
         return {
-            "error": message
+            "status": "error",
+            "message": str(e)
         }
