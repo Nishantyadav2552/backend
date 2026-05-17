@@ -19,30 +19,29 @@ model = genai.GenerativeModel(
 def extract_bill_with_gemini(ocr_text):
 
     prompt = f"""
-    You are an AI receipt extraction system.
+    You are an expert receipt extraction AI.
 
-    Extract receipt information from OCR text.
-
-    Return ONLY valid JSON.
+    You will receive OCR text extracted from a receipt.
 
     Extract ONLY these fields:
 
-    1. vendor
-    2. total
+    1. description
+    2. total_amount
     3. date
     4. time
 
     Rules:
-    - Do not explain anything
-    - Return valid JSON only
-    - If a field is missing use empty string
-    - total must contain decimal value if present
+    - description should usually be the shop/store/vendor name
+    - total_amount should be the FINAL amount paid
+    - return ONLY valid JSON
+    - no explanation
+    - if field missing use empty string
 
-    JSON FORMAT:
+    Return JSON in EXACT format:
 
     {{
-    "vendor": "",
-    "total": "",
+    "description": "",
+    "total_amount": "",
     "date": "",
     "time": ""
     }}
