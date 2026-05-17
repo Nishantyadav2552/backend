@@ -40,6 +40,7 @@ async def extract_structured_data(request: OCRRequest):
             }
 
         structured_data = extract_bill_with_gemini(ocr_text)
+        print(structured_data)
 
         return {
             "status": "success",
